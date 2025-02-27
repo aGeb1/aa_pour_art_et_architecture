@@ -1,7 +1,7 @@
 import moviepy as mp
 
 
-def create_holographic_video(input_video_path, output_video_path, scale=0.33):
+def create_holographic_video(input_video_path, output_video_path, scale=0.33, delay=0):
     """
     Crée un effet vidéo holographique en faisant tourner et en organisant quatre copies
     de la vidéo d'entrée autour d'un point central.
@@ -9,6 +9,8 @@ def create_holographic_video(input_video_path, output_video_path, scale=0.33):
     Args:
         input_video_path (str): Chemin vers le fichier vidéo d'entrée.
         output_video_path (str): Chemin pour enregistrer la vidéo holographique de sortie.
+        scale (float): Échelle de redimensionnement des vidéos pivotées.
+        delay (float): Délai entre les vidéos pivotées en secondes.
     """
     video = mp.VideoFileClip(input_video_path)
 
@@ -22,6 +24,12 @@ def create_holographic_video(input_video_path, output_video_path, scale=0.33):
     # Tourne la vidéo dans les quatre directions et redimensionne
     rotated_videos = [
         video.rotated(angle).resized(scale) for angle in [0, 90, 180, 270]
+    ]
+
+    # Applique le délai entre les vidéos
+    duration = video.duration
+    delayed_videos = [
+        rotated_videos[i].subclipped(delay * i, duration - delay * (3 - i)) for i in range(4)
     ]
 
     # Fonction pour placer une vidéo dans le clip final
@@ -43,10 +51,10 @@ def create_holographic_video(input_video_path, output_video_path, scale=0.33):
     right_coordinates = ((1 - scale) * side_length, (1 - scale) * side_length // 2)
 
     # Placez les vidéos pivotées dans les quatre quadrants
-    final_clip = place_video(final_clip, rotated_videos[0], *top_coordinates)     # Haut
-    final_clip = place_video(final_clip, rotated_videos[1], *left_coordinates)    # Gauche
-    final_clip = place_video(final_clip, rotated_videos[2], *bottom_coordinates)  # Bas
-    final_clip = place_video(final_clip, rotated_videos[3], *right_coordinates)   # Droite
+    final_clip = place_video(final_clip, delayed_videos[0], *top_coordinates)     # Haut
+    final_clip = place_video(final_clip, delayed_videos[1], *left_coordinates)    # Gauche
+    final_clip = place_video(final_clip, delayed_videos[2], *bottom_coordinates)  # Bas
+    final_clip = place_video(final_clip, delayed_videos[3], *right_coordinates)   # Droite
 
     # Écrire la vidéo finale dans le fichier de sortie
     final_clip.write_videofile(output_video_path, codec='libx264', fps=video.fps)
