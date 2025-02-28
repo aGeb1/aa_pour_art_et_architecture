@@ -1,7 +1,7 @@
 import moviepy as mp
 
 
-def create_holographic_video(input_video_path, output_video_path, scale=0.33, delay=0):
+def create_holographic_video(input_video_path, output_video_path, scale=3, delay=0):
     """
     Crée un effet vidéo holographique en faisant tourner et en organisant quatre copies
     de la vidéo d'entrée autour d'un point central.
@@ -21,9 +21,10 @@ def create_holographic_video(input_video_path, output_video_path, scale=0.33, de
     x2, y2 = x1 + side_length, y1 + side_length
     video = video.cropped(x1=x1, y1=y1, x2=x2, y2=y2)
 
+
     # Tourne la vidéo dans les quatre directions et redimensionne
     rotated_videos = [
-        video.rotated(angle).resized(scale) for angle in [0, 90, 180, 270]
+        video.rotated(angle) for angle in [0, 90, 180, 270]
     ]
 
     # Applique le délai entre les vidéos
@@ -39,16 +40,16 @@ def create_holographic_video(input_video_path, output_video_path, scale=0.33, de
 
     # Crée un clip final noir de la même taille que la vidéo d'entrée
     final_clip = mp.ColorClip(
-        size=(side_length, side_length),
+        size=(side_length*scale, side_length*scale),
         color=(0, 0, 0),
         duration=video.duration,
     )
 
     # Calcul des coordonnées pour placer les vidéos
-    top_coordinates = ((1 - scale) * side_length // 2, 0)
-    left_coordinates = (0, (1 - scale) * side_length // 2)
-    bottom_coordinates = ((1 - scale) * side_length // 2, (1 - scale) * side_length)
-    right_coordinates = ((1 - scale) * side_length, (1 - scale) * side_length // 2)
+    top_coordinates = ((scale - 1) * side_length // 2, 0)
+    left_coordinates = (0, (scale - 1) * side_length // 2)
+    bottom_coordinates = ((scale - 1) * side_length // 2, (scale - 1) * side_length)
+    right_coordinates = ((scale - 1) * side_length, (scale - 1) * side_length // 2)
 
     # Placez les vidéos pivotées dans les quatre quadrants
     final_clip = place_video(final_clip, delayed_videos[0], *top_coordinates)     # Haut
