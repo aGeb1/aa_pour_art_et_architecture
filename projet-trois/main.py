@@ -40,9 +40,9 @@ def create_holographic_video(input_video_path, output_video_path, scale=3, delay
 
     # Crée un clip final noir de la même taille que la vidéo d'entrée
     final_clip = mp.ColorClip(
-        size=(side_length*scale, side_length*scale),
+        size=(round(side_length*scale), round(side_length*scale)),
         color=(0, 0, 0),
-        duration=video.duration,
+        duration=video.duration - delay * 3,
     )
 
     # Calcul des coordonnées pour placer les vidéos
